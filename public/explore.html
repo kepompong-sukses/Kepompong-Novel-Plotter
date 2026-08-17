@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jelajah Karya - Kepompong Plotter</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+    <!-- Skrip Anti-Kedip -->
+    <script>if (localStorage.getItem('temaKepompong') === 'dark') document.documentElement.classList.add('dark-theme');</script>
+    
+    <button id="btn-theme" onclick="toggleThemeExplore()" title="Ganti Tema">🌙</button>
+
+    <!-- BILAH SISI (SIDEBAR) MINIMALIS UNTUK EXPLORE -->
+    <aside class="sidebar" style="display: flex;">
+        <h2 style="text-align: center; color: var(--accent-purple); margin-top: 10px;">Kepompong</h2>
+        <br>
+        <a href="index.html" class="sidebar-menu" style="text-decoration: none;">🏠 Kembali ke Beranda</a>
+        <a href="explore.html" class="sidebar-menu active" style="text-decoration: none;">🌍 Jelajah Karya</a>
+    </aside>
+
+    <!-- AREA KONTEN KANAN -->
+    <div class="main-wrapper" style="margin-left: 260px; justify-content: flex-start;">
+        <div class="container" style="max-width: 900px;">
+            <h1 style="margin-top: 0;">🌍 Jelajah Karya (Public Hub)</h1>
+            <p style="color: var(--text-muted); margin-top: -5px;">Temukan dan pelajari arsitektur plot dari karya penulis lain di seluruh dunia.</p>
+            
+            <hr style="border-top: 1px dashed var(--border-color); border-bottom: none; margin: 20px 0;">
+
+            <!-- Filter & Pengurutan -->
+            <div style="background: var(--bg-card); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 20px; display: flex; gap: 15px; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 150px;">
+                    <label style="font-size: 13px; color: var(--text-muted);">Filter Genre:</label>
+                    <select id="filter-genre" onchange="muatKaryaPublik()" style="margin-bottom: 0;">
+                        <option value="Semua">Semua Genre</option>
+                        <option value="Fantasi">Fantasi</option>
+                        <option value="Sci-Fi">Sci-Fi</option>
+                        <option value="Romance">Romance</option>
+                        <option value="Misteri">Misteri / Thriller</option>
+                    </select>
+                </div>
+                <div style="flex: 1; min-width: 150px;">
+                    <label style="font-size: 13px; color: var(--text-muted);">Urutkan Berdasarkan:</label>
+                    <select id="sort-order" onchange="muatKaryaPublik()" style="margin-bottom: 0;">
+                        <option value="terbaru">Paling Baru</option>
+                        <option value="terlama">Paling Lama</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Etalase Karya (Grid Format) -->
+            <div id="public-feed" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <p style="grid-column: 1 / -1; color: var(--text-muted);">Memuat karya publik...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="explore.js"></script>
+</body>
+</html>

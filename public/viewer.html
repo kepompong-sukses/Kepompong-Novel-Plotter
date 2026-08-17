@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Public Viewer - Kepompong</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+    <script>if (localStorage.getItem('temaKepompong') === 'dark') document.documentElement.classList.add('dark-theme');</script>
+    <button id="btn-theme" onclick="toggleTheme()" title="Ganti Tema">🌙</button>
+
+    <div class="main-wrapper" style="margin-left: 0; justify-content: center;">
+        <div class="container" style="max-width: 900px; margin-top: 20px;">
+            <a href="explore.html" class="btn btn-back" style="text-decoration: none; display: inline-block; margin-bottom: 20px;">⬅ Kembali ke Jelajah</a>
+            
+            <div class="project-header" style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px dashed var(--border-color);">
+                <div>
+                    <h1 id="view-judul" style="margin-bottom: 5px; font-size: 32px;">Memuat Judul...</h1>
+                    <p id="view-genre" style="margin-top: 0; color: var(--text-muted); font-size: 15px;">Genre · Memuat Penulis...</p>
+                </div>
+            </div>
+
+            <div class="project-nav">
+                <button class="project-nav-btn active" onclick="bukaTabViewer('tab-overview', this)">Overview</button>
+                <button class="project-nav-btn" onclick="bukaTabViewer('tab-plot', this)">Plot</button>
+                <button class="project-nav-btn" onclick="bukaTabViewer('tab-char', this)">Characters</button>
+                <button class="project-nav-btn" onclick="bukaTabViewer('tab-rel', this)">Relationships</button>
+                <button class="project-nav-btn" onclick="bukaTabViewer('tab-timeline', this)">Timeline</button>
+                <button class="project-nav-btn" onclick="bukaTabViewer('tab-scenes', this)">Scenes</button>
+                <button class="project-nav-btn" onclick="bukaTabViewer('tab-toolkit', this)">Toolkit</button>
+                <button class="project-nav-btn" onclick="bukaTabViewer('tab-docs', this)">Manuscript</button>
+            </div>
+
+            <!-- OVERVIEW -->
+            <div id="tab-overview" class="project-tab-content active">
+                <h3>Blueprint Progress</h3>
+                <div style="background: var(--bg-card); padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 20px;">
+                    <h1 id="view-progress-text" style="margin:0; font-size: 40px; color: var(--accent-pink);">0%</h1>
+                    <p id="view-progress-msg" style="margin:5px 0 0 0; color: var(--text-muted);">Memuat data...</p>
+                </div>
+                <div id="view-breakdown" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; border-top: 1px dashed var(--border-color); padding-top: 20px;"></div>
+            </div>
+
+            <!-- TAB KONTEN READ-ONLY -->
+            <div id="tab-plot" class="project-tab-content"><div id="view-babak"></div></div>
+            <div id="tab-char" class="project-tab-content"><div id="view-karakter" class="char-grid"></div></div>
+            <div id="tab-rel" class="project-tab-content"><div id="view-relasi" class="char-grid"></div></div>
+            <div id="tab-timeline" class="project-tab-content"><div id="view-timeline"></div></div>
+            <div id="tab-scenes" class="project-tab-content"><div id="view-scenes"></div></div>
+            <div id="tab-toolkit" class="project-tab-content"><div id="view-toolkit" style="display: grid; gap: 15px;"></div></div>
+            
+            <div id="tab-docs" class="project-tab-content">
+                <div class="modul-box-docs">
+                    <div id="docs-viewer" style="display: none;">
+                        <a id="btn-buka-docs" href="#" target="_blank" style="font-size: 13px; color: #4285F4; text-decoration: none; font-weight: bold; display: block; margin-bottom: 10px;">↗ Buka Naskah Penuh di Tab Baru</a>
+                        <iframe id="iframe-docs" width="100%" height="600px" style="border: 1px solid var(--border-color); border-radius: 8px;"></iframe>
+                    </div>
+                    <p id="docs-empty" style="color: var(--text-muted);">Penulis tidak menyertakan tautan naskah publik.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <script src="viewer.js"></script>
+</body>
+</html>

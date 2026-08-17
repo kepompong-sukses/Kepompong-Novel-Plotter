@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kepompong Novel Plotter</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+    <script>if (localStorage.getItem('temaKepompong') === 'dark') document.documentElement.classList.add('dark-theme');</script>
+    <button id="btn-theme" onclick="toggleTheme()" title="Ganti Tema">🌙</button>
+
+    <aside class="sidebar" id="sidebar-utama" style="display: none;">
+        <img id="sidebar-foto" class="sidebar-avatar" src="https://via.placeholder.com/150" alt="Foto Profil">
+        <div id="sidebar-nama" class="sidebar-name">Nama Pena</div>
+        <button class="sidebar-menu active" onclick="bukaHalaman('workspace')">🏠 Beranda</button>
+        <button class="sidebar-menu" onclick="bukaHalaman('profil-settings')">⚙️ Pengaturan Profil</button>
+        <a href="explore.html" class="sidebar-menu">🌍 Jelajah Karya</a>
+        <button class="btn btn-logout" onclick="logout()">Keluar Akun</button>
+    </aside>
+
+    <div class="main-wrapper">
+        <div class="container">
+            <div id="login-section">
+                <h1>Kepompong Novel Plotter</h1>
+                <p>Workspace plot cerita yang merangkul kerumitan kerangka berpikirmu.</p>
+                <button class="btn btn-google" onclick="loginGoogle()">🚀 Login dengan Google</button>
+            </div>
+
+            <div id="workspace">
+                <h2 style="margin-top:0; color: var(--text-main);">Halo, Penulis!</h2>
+                <p style="color: var(--text-muted); margin-top: -5px; margin-bottom: 30px;">Selamat datang kembali di meja kerjamu.</p>
+                
+                <div id="continue-working" style="display: none; background: var(--bg-card); border-left: 4px solid var(--accent-purple); padding: 20px; border-radius: 8px; margin-bottom: 30px; border-top: 1px solid var(--border-color); border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Lanjutkan Pekerjaan</h3>
+                    <h2 id="cw-title" style="margin: 5px 0;">Nama Proyek</h2>
+                    <p id="cw-genre" style="margin: 0 0 15px 0; font-size: 14px; color: var(--accent-purple); font-weight: bold;">Genre</p>
+                    <button class="btn btn-primary" style="width: auto; padding: 8px 25px;" onclick="bukaProyekLanjutan()">Lanjutkan ➔</button>
+                </div>
+
+                <hr style="border-top: 1px dashed var(--border-color); border-bottom: none; margin: 30px 0;">
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="margin: 0;">📚 My Projects</h3>
+                    <button class="btn btn-primary" style="width: auto; margin: 0; background-color: transparent; color: var(--accent-purple); border: 1px solid var(--accent-purple);" onclick="document.getElementById('panel-buat-proyek').style.display='block'; editProjectId=null; document.getElementById('input-judul').value=''; document.querySelector('#panel-buat-proyek .btn-primary').innerText='Simpan & Buat';">+ Proyek Baru</button>
+                </div>
+
+                <!-- Modal Form Proyek (Buat / Edit) -->
+                <div id="panel-buat-proyek" style="display: none; background: var(--bg-plot); padding: 15px; border-radius: 8px; border: 1px dashed var(--accent-purple); margin-bottom: 20px;">
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="input-judul" placeholder="Judul Naskah..." style="flex: 2; margin-bottom: 0;">
+                        <select id="input-genre" style="flex: 1; margin-bottom: 0;">
+                            <option value="Fantasi">Fantasi</option>
+                            <option value="Sci-Fi">Sci-Fi</option>
+                            <option value="Romance">Romance</option>
+                            <option value="Misteri">Misteri / Thriller</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <button class="btn btn-primary" onclick="simpanProyek()">Simpan Proyek</button>
+                        <button class="btn btn-back" style="margin-bottom: 0;" onclick="document.getElementById('panel-buat-proyek').style.display='none'">Batal</button>
+                    </div>
+                </div>
+                
+                <div id="daftar-proyek" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;"></div>
+            </div>
+
+            <div id="profil-settings">
+                <h2 style="margin-top:0;">⚙️ Pengaturan Profil</h2>
+                <hr style="border-top: 1px dashed var(--border-color); border-bottom: none; margin: 20px 0;">
+                <label style="font-size: 13px; color: var(--text-muted);">Unggah Foto Profil Baru:</label>
+                <input type="file" id="input-profil-foto" accept="image/*" style="background: transparent; border: none; padding: 0;">
+                <label style="font-size: 13px; color: var(--text-muted);">Nama Pena Utama (Global):</label>
+                <input type="text" id="input-profil-nama" placeholder="Ketik nama penamu...">
+                <label style="font-size: 13px; color: var(--text-muted);">Bio Singkat:</label>
+                <textarea id="input-profil-bio" rows="4" placeholder="Ceritakan sedikit tentang dirimu..."></textarea>
+                <button class="btn btn-primary" onclick="simpanProfil()">Simpan Perubahan Profil</button>
+            </div>
+
+            <div id="project-detail">
+                <button class="btn btn-back" onclick="bukaHalaman('workspace')">⬅ Kembali ke Beranda</button>
+                
+                <div class="project-header">
+                    <div style="display: flex; align-items: flex-start; gap: 15px;">
+                        <div>
+                            <h2 id="detail-judul" style="margin-bottom: 5px;">Judul Proyek</h2>
+                            <p id="detail-genre" style="margin-top: 0; color: var(--text-muted); font-size: 14px;">Genre</p>
+                        </div>
+                        <button class="btn btn-back" style="padding: 4px 10px; font-size: 12px; margin-top: 5px;" onclick="siapkanEditProyekDariDetail()" title="Edit Info Proyek">✏️ Edit</button>
+                    </div>
+                    
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <button id="btn-export-txt" class="btn btn-primary" style="margin:0; padding: 6px 12px; font-size: 12px; background: var(--bg-body); color: var(--accent-purple); border: 1px solid var(--accent-purple); width: auto;" onclick="exportTXT()">⬇️ TXT</button>
+                        <button id="btn-export-pdf" class="btn btn-primary" style="margin:0; padding: 6px 12px; font-size: 12px; width: auto;" onclick="exportPDF()">⬇️ PDF</button>
+                        <select id="input-visibilitas" onchange="ubahVisibilitas()" style="padding: 6px 10px; font-size: 13px; margin: 0;">
+                            <option value="private">🔒 Privat</option>
+                            <option value="public">🌍 Publik</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="project-nav">
+                    <button class="project-nav-btn active" onclick="bukaTabProyek('tab-overview', this)">Overview</button>
+                    <button class="project-nav-btn" onclick="bukaTabProyek('tab-plot', this)">Plot</button>
+                    <button class="project-nav-btn" onclick="bukaTabProyek('tab-char', this)">Characters</button>
+                    <button class="project-nav-btn" onclick="bukaTabProyek('tab-rel', this)">Relationships</button>
+                    <button class="project-nav-btn" onclick="bukaTabProyek('tab-timeline', this)">Timeline</button>
+                    <button class="project-nav-btn" onclick="bukaTabProyek('tab-scenes', this)">Scenes</button>
+                    <button class="project-nav-btn" onclick="bukaTabProyek('tab-toolkit', this)">Toolkit</button>
+                    <button class="project-nav-btn" onclick="bukaTabProyek('tab-docs', this)">Manuscript</button>
+                </div>
+
+                <!-- OVERVIEW -->
+                <div id="tab-overview" class="project-tab-content active">
+                    <h3>Blueprint Progress</h3>
+                    <div style="background: var(--bg-card); padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 20px;">
+                        <h1 id="overview-progress-text" style="margin:0; font-size: 40px; color: var(--accent-pink);">0%</h1>
+                        <p id="overview-progress-msg" style="margin:5px 0 0 0; color: var(--text-muted);">Menghitung perkembangan proyek...</p>
+                    </div>
+                </div>
+
+                <!-- PLOT -->
+                <div id="tab-plot" class="project-tab-content">
+                    <div class="modul-box-plot">
+                        <input type="text" id="input-babak-judul" placeholder="Judul Babak (Misal: Act I - Eksposisi)">
+                        <textarea id="input-babak-konten" rows="3" placeholder="Jelaskan ringkasan kejadian..."></textarea>
+                        <button class="btn btn-primary" style="margin-top: 0;" onclick="simpanBabak()">Simpan Babak Plot</button>
+                    </div>
+                    <div id="daftar-babak" style="margin-top: 20px; margin-bottom: 40px;"></div>
+                </div>
+
+                <!-- CHARACTERS -->
+                <div id="tab-char" class="project-tab-content">
+                    <div class="modul-box-char">
+                        <input type="text" id="input-char-nama" placeholder="Nama Karakter">
+                        <select id="input-char-peran">
+                            <option value="protagonist">Protagonis (Utama)</option>
+                            <option value="antagonist">Antagonis (Lawan)</option>
+                            <option value="supporting">Pendukung (Figuran)</option>
+                        </select>
+                        <textarea id="input-char-motivasi" rows="2" placeholder="Motivasi atau tujuan utama..."></textarea>
+                        <button class="btn btn-primary" style="background-color: var(--accent-purple); margin-top: 0;" onclick="simpanKarakter()">Simpan Karakter</button>
+                    </div>
+                    <div id="daftar-karakter" class="char-grid"></div>
+                </div>
+
+                <!-- RELATIONSHIPS -->
+                <div id="tab-rel" class="project-tab-content">
+                    <div class="modul-box-char" style="background: var(--bg-card); border-color: var(--accent-purple);">
+                        <div style="display: flex; gap: 10px;">
+                            <select id="input-rel-char-a" style="flex: 1;"><option value="">Pilih Karakter A...</option></select>
+                            <span style="display:flex; align-items:center; font-weight:bold; color:var(--accent-purple); font-size: 20px;">×</span>
+                            <select id="input-rel-char-b" style="flex: 1;"><option value="">Pilih Karakter B...</option></select>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="input-rel-tipe" placeholder="Tipe Hubungan (Misal: Rival, Sekutu)" style="flex: 2;">
+                            <select id="input-rel-intensitas" style="flex: 1;">
+                                <option value="Rendah">Intensitas: Rendah</option>
+                                <option value="Sedang">Intensitas: Sedang</option>
+                                <option value="Tinggi">Intensitas: Tinggi</option>
+                            </select>
+                        </div>
+                        <textarea id="input-rel-notes" rows="2" placeholder="Catatan dinamika hubungan mereka..."></textarea>
+                        <button class="btn btn-primary" style="background-color: var(--accent-purple); margin-top: 0;" onclick="simpanRelasi()">Simpan Relasi</button>
+                    </div>
+                    <div id="daftar-relasi" class="char-grid"></div>
+                </div>
+
+                <!-- TIMELINE -->
+                <div id="tab-timeline" class="project-tab-content">
+                    <div class="modul-box-plot" style="background: var(--bg-card); border-color: var(--accent-purple);">
+                        <input type="text" id="input-time-nama" placeholder="Nama Kejadian / Event (Misal: Kebakaran Arsip Utama)">
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="input-time-tgl" placeholder="Waktu / Era (Misal: 2018 / Era Keemasan)" style="flex: 1;">
+                            <input type="text" id="input-time-lokasi" placeholder="Lokasi (Misal: Sektor 4)" style="flex: 1;">
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="number" id="input-time-kronologis" placeholder="Urutan Kronologis (Asli: 1, 2, 3...)" style="flex: 1;">
+                            <input type="number" id="input-time-naratif" placeholder="Urutan Naratif (Tampil di Cerita: 1, 2, 3...)" style="flex: 1;">
+                        </div>
+                        <textarea id="input-time-desc" rows="2" placeholder="Deskripsi kejadian penting..."></textarea>
+                        <button class="btn btn-primary" style="background-color: var(--accent-purple); margin-top: 0;" onclick="simpanTimeline()">Simpan Event Timeline</button>
+                    </div>
+                    <div id="daftar-timeline" style="margin-top: 20px;"></div>
+                </div>
+
+                <!-- SCENES -->
+                <div id="tab-scenes" class="project-tab-content">
+                    <div class="modul-box-plot" style="background: var(--bg-card); border-color: var(--accent-purple);">
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="input-scene-bab" placeholder="Bab (Misal: Bab 1)" style="flex: 1;">
+                            <input type="text" id="input-scene-judul" placeholder="Judul Scene (Wajib)" style="flex: 2;">
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="input-scene-pov" placeholder="POV Karakter" style="flex: 1;">
+                            <select id="input-scene-status" style="flex: 1;">
+                                <option value="Planned">Status: 📝 Planned</option>
+                                <option value="Drafted">Status: ✍️ Drafted</option>
+                                <option value="Revised">Status: 🔍 Revised</option>
+                                <option value="Final">Status: ✅ Final</option>
+                            </select>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="input-scene-tujuan" placeholder="Goal (Tujuan karakter di scene ini)" style="flex: 1;">
+                            <input type="text" id="input-scene-konflik" placeholder="Conflict (Rintangan/Masalah)" style="flex: 1;">
+                        </div>
+                        <textarea id="input-scene-hasil" rows="2" placeholder="Outcome (Hasil akhir dari scene ini)..."></textarea>
+                        <button class="btn btn-primary" style="background-color: var(--accent-purple); margin-top: 0;" onclick="simpanScene()">Simpan Scene</button>
+                    </div>
+                    <div id="daftar-scenes" style="margin-top: 20px;"></div>
+                </div>
+
+                <!-- TOOLKIT -->
+                <div id="tab-toolkit" class="project-tab-content">
+                    <p style="color: var(--text-muted); font-size: 14px;">Modul adaptif yang menyesuaikan dengan genre naskahmu.</p>
+                    <div id="toolkit-dynamic-form" class="modul-box-plot" style="background: var(--bg-card); border-color: var(--accent-purple);">
+                        <select id="input-toolkit-kategori" style="font-weight: bold; color: var(--accent-purple);">
+                            <!-- Diisi otomatis oleh JavaScript -->
+                        </select>
+                        <textarea id="input-toolkit-konten" rows="4" placeholder="Tuliskan aturan, konsep, atau ide utamanya di sini..."></textarea>
+                        <button class="btn btn-primary" style="background-color: var(--accent-purple); margin-top: 0;" onclick="simpanToolkit()">Simpan Konsep</button>
+                    </div>
+                    <div id="daftar-toolkit" style="margin-top: 20px; display: grid; gap: 15px;"></div>
+                </div>
+
+                <!-- MANUSCRIPT -->
+                <div id="tab-docs" class="project-tab-content">
+                    <div class="modul-box-docs">
+                        <input type="text" id="input-docs-url" placeholder="Tempel URL Google Docs di sini...">
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn btn-primary" style="background-color: #4285F4; margin-top: 0;" onclick="simpanDocsUrl()">Tautkan Naskah</button>
+                            <button class="btn btn-back" style="margin: 0; color: #ff4d4d;" onclick="hapusDocsUrl()" title="Hapus Tautan">🗑️ Hapus Tautan</button>
+                        </div>
+                        <div id="docs-viewer" style="margin-top: 15px; display: none;">
+                            <a id="btn-buka-docs" href="#" target="_blank" style="font-size: 13px; color: #4285F4; text-decoration: none; font-weight: bold; display: block; margin-bottom: 10px;">↗ Buka di Tab Baru</a>
+                            <iframe id="iframe-docs" width="100%" height="500px" style="border: 1px solid var(--border-color); border-radius: 8px;"></iframe>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
